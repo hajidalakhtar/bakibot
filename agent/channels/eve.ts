@@ -1,7 +1,9 @@
 import { eveChannel } from "eve/channels/eve";
 import { localDev, placeholderAuth, vercelOidc } from "eve/channels/auth";
+import githubChannel from "./github";
 
 export default eveChannel({
+  name: "main-channel",
   auth: [
     // Lets the eve TUI and your Vercel deployments reach the deployed agent.
     vercelOidc(),
@@ -12,4 +14,7 @@ export default eveChannel({
     // or use none() for a public demo.
     placeholderAuth(),
   ],
+  channels: {
+    github: githubChannel,
+  },
 });
