@@ -1,0 +1,26 @@
+review:
+  depth: "deep"  # shallow, medium, deep
+  tone: "professional"
+  severity: "all"
+  models:
+    scout: "gpt-4o-mini"
+    deep_review: "claude-3-5-sonnet-20241022"
+    orchestrator: "gpt-4o"
+
+custom_rules:
+  enabled: true
+  rules_file: "rules.yml"
+
+max_chunk_size: 5000  # lines per file
+
+ignore_patterns:
+  - node_modules
+  - dist
+  - build
+  - .git
+
+file_types:
+  js: ["js", "jsx", "ts", "tsx"]
+  css: ["css", "scss", "less"]
+  json: ["json", "jsonc"]
+  markdown: ["md", "mdx"]

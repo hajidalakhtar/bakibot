@@ -1,0 +1,32 @@
+# Custom review rules
+- id: "no-hardcoded-credentials"
+  severity: "P0"
+  category: "security"
+  description: "Remove hardcoded credentials"
+  condition: "contains: process.env or contains: API_KEY or contains: SECRET"
+  action: "Use environment variables instead"
+  enabled: true
+
+- id: "max-lines-per-function"
+  severity: "P2"
+  category: "best-practice"
+  description: "Functions should not exceed 50 lines"
+  condition: "function line_count > 50"
+  action: "Break down the function"
+  enabled: true
+
+- id: "no-unused-imports"
+  severity: "P1"
+  category: "style"
+  description: "Remove unused imports"
+  condition: "unused import detected"
+  action: "Clean up imports"
+  enabled: true
+
+- id: "consistent-error-handling"
+  severity: "P1"
+  category: "best-practice"
+  description: "Use consistent error handling patterns"
+  condition: "mixed error handling"
+  action: "Standardize error handling"
+  enabled: true
