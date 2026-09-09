@@ -1,0 +1,58 @@
+{
+  "project": "pr-code-review-agent",
+  "version": "1.0",
+  "mvp_features": [
+    "github-webhook-integration",
+    "multi-model-review-pipeline",
+    "hybrid-review-output",
+    "custom-rules-engine",
+    "delta-review",
+    "pr-size-handling",
+    "configurable-review",
+    "error-handling"
+  ],
+  "phases": {
+    "phase1": {
+      "name": "Foundation & GitHub Setup",
+      "status": "in-progress",
+      "tasks": [
+        "github-channel-setup",
+        "project-structure",
+        "multi-model-support",
+        "configuration"
+      ]
+    },
+    "phase2": {
+      "name": "Core Agents",
+      "status": "pending",
+      "tasks": [
+        "scout-agent",
+        "deep-review-agent",
+        "pipeline-orchestrator",
+        "custom-rules-engine"
+      ]
+    },
+    "phase3": {
+      "name": "GitHub Integration",
+      "status": "pending",
+      "tasks": [
+        "webhook-handler",
+        "comment-posting",
+        "delta-review",
+        "pr-size-handling"
+      ]
+    },
+    "phase4": {
+      "name": "Polish & Deployment",
+      "status": "pending",
+      "tasks": [
+        "error-handling",
+        "config-loader",
+        "deployment",
+        "testing"
+      ]
+    }
+  },
+  "status": "planning",
+  "last_updated": "2025-09-09"
+}
