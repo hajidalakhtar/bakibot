@@ -234,7 +234,147 @@ bakibot/
 ## 📞 Support
 
 For questions or issues, please open a GitHub issue or contact the maintainer.
+---
 
+## 📖 Tutorial: Nambahin Repo ke Bakibot buat Code Review
+
+Bakibot jadi review otomatis pas ada PR dibuka. Flow-nya:
+
+```
+Developer buka PR → GitHub Webhook → Bakibot (Vercel) → Review ke PR
+        │
+        ▼
+┌───────────────────────────────────┐
+│  1. Terima PR event              │
+│  2. Baca diff via GitHub API     │
+│  3. Pipeline jalan:              │
+│     ├─ Scout (gpt-4o-mini)       │
+│     │  → triage, categorize      │
+│     ├─ Rules Engine              │
+│     │  → pattern matching        │
+│     └─ Deep Review (sonnet)      │
+│        → inline + summary        │
+│  4. Post review ke PR            │
+│     (comment + inline + labels)  │
+└───────────────────────────────────┘
+```
+
+### Step 1: Setup GitHub Token
+
+Bakibot butuh akses GitHub buat baca diff PR dan post komentar review.
+
+**Opsi A: Personal Access Token** (paling cepat)
+
+GitHub → Settings → Developer settings → Personal access tokens → Fine-grained:
+
+- Permission: `pull_requests` (read & write), `contents` (read), `issues` (write)
+
+Set di `.env` bakibot:
+
+```bash
+GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+GITHUB_WEBHOOK_SECRET=whsec_xxxxxxxxxxxx   # random string, catet buat step 3
+```
+
+**Opsi B: GitHub App** (recommended production)
+
+```bash
+eve add channel/github
+```
+
+### Step 2: Deploy Bakibot Agent
+
+```bash
+npm install
+eve build
+eve start    # atau: eve deploy --yes
+```
+
+Catat URL deployment-nya — butuh buat webhook di Step 3.
+
+### Step 3: Setup Webhook di Repo Target
+
+Di **repo GitHub yang mau direview**:
+
+1. Buka **Settings → Webhooks → Add webhook**
+2. Isi:
+   - **Payload URL**: `https://<bakibot-vercel-url>/api/webhook/github`
+   - **Content type**: `application/json`
+   - **Secret**: sama kayak `GITHUB_WEBHOOK_SECRET` di `.env`
+   - **Events**: centang **Pull requests** (+ **Issue comments** kalau mau trigger via comment)
+3. Save.
+
+### Step 4: Konfigurasi Review
+
+#### Agent-level (global)
+
+Edit `agent/config/review-defaults.yml`:
+
+```yaml
+review:
+  depth: deep              # shallow | medium | deep
+  tone: professional       # concise | professional | friendly | direct
+  severity: all            # all | high | low
+
+models:
+  scout: gpt-4o-mini
+  deepReview: claude-3-5-sonnet-20241022
+  orchestrator: gpt-4o
+
+rules:
+  enabled: true
+  rulesFile: rules.yml
+
+maxChunkSize: 5000
+ignorePatterns:
+  - node_modules
+  - dist
+  - build
+  - .git
+```
+
+#### Repo-level (opsional, per-repo)
+
+Bikin `.eve/review.yml` di **repo target** buat override:
+
+```yaml
+review:
+  depth: deep
+  criteria:
+    security: true
+    bugs: true
+    performance: true
+  rules:
+    - pattern: "console\\.log"
+      severity: medium
+      category: style
+      description: "Production code should not have console.log"
+    - pattern: "password"
+      severity: critical
+      category: security
+      description: "Never hardcode credentials"
+    - pattern: "\\.sql"
+      severity: high
+      category: security
+      description: "Raw SQL queries should be parameterized"
+```
+
+### Step 5: Test
+
+1. Buka PR di repo target (bisa dummy: ubah 1 file)
+2. Bakibot otomatis jalan — cek output di PR:
+   - **Summary comment** (keseluruhan review)
+   - **Inline comments** (kalau ada issue spesifik)
+   - **Severity labels** (P0 critical → P2 nice-to-have)
+
+### Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Review gak muncul | Cek webhook delivery: repo → Settings → Webhooks → Recent Deliveries |
+| Error di review | Cek Vercel function logs |
+| Rules gak match | Test regex di [regex101.com](https://regex101.com) |
+| PR gede gak ke-review | Bakibot auto-chunk (`utils/chunking.ts`, max 5000 token/chunk) |
 ---
 
 *Built with ❤️ using [eve framework](https://eve.dev)*
